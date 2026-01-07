@@ -14,8 +14,9 @@ def get_file_content(working_directory, file_path):
         if not os.path.isfile(target_file_path):
             return f'Error: File not found or is not a regular file: "{file_path}"'
 
+        MAX_CHARS = 10000
         with open(target_file_path, 'r') as file:
-            content = file.read(size = 10000)
+            content = file.read(MAX_CHARS)
 
             # After reading the first MAX_CHARS...
             if file.read(1):
