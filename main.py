@@ -32,8 +32,7 @@ messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)]
 response = client.models.generate_content(
     model=model, 
     contents=messages,
-    config=types.GenerateContentConfig(system_instruction=system_prompt),
-    temperature = 0,
+    config=types.GenerateContentConfig(system_instruction=system_prompt, temperature = 0),
     )
 # used contents from the hardcode and args.user_prompt in previous iterations
 
