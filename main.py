@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import argparse
 from google.genai import types
+from prompts import system_prompt
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -29,7 +30,11 @@ messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)]
 
 
 response = client.models.generate_content(
-    model=model, contents=messages)
+    model=model, 
+    contents=messages,
+    config=types.GenerateContentConfig(system_instruction=system_prompt),
+    temperature = 0,
+    )
 # used contents from the hardcode and args.user_prompt in previous iterations
 
 if response.usage_metadata is None:
