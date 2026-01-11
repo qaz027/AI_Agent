@@ -3,7 +3,7 @@
 import sys
 from pkg.calculator import Calculator
 from pkg.render import format_json_output
-from functions.call_functions import available_functions
+
 
 
 def main():
