@@ -23,3 +23,18 @@ def write_file(working_directory, file_path, content):
     
     except Exception as e:
         return f"Error: {e}"
+    
+# need to update    
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Runs python file in a specified directory and returns either output or return codes or messages",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="Directory path to list files from, relative to the working directory (default is the working directory itself)",
+            ),
+        },
+    ),
+)
