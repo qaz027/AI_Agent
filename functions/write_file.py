@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 def write_file(working_directory, file_path, content):
     try:
@@ -25,15 +26,23 @@ def write_file(working_directory, file_path, content):
         return f"Error: {e}"
     
 # need to update    
-schema_run_python_file = types.FunctionDeclaration(
-    name="run_python_file",
-    description="Runs python file in a specified directory and returns either output or return codes or messages",
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description="Writes given content to a specified file in a specified directory and returns either confirmation message or return codes or error messages",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "directory": types.Schema(
                 type=types.Type.STRING,
-                description="Directory path to list files from, relative to the working directory (default is the working directory itself)",
+                description="Directory path relative to the working directory (default is the working directory itself) where we should find the file to write to",
+            ),
+            "file": types.Schema(
+                type=types.Type.STRING,
+                description="file name to which content will be written within the specified directory"
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="Content that should be copied and written to the specified file"
             ),
         },
     ),

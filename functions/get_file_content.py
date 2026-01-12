@@ -1,5 +1,6 @@
 
 import os
+from google.genai import types
 
 def get_file_content(working_directory, file_path):
     try:
@@ -27,8 +28,8 @@ def get_file_content(working_directory, file_path):
         return f"Error reading file: {e}"
     
 # need to update    
-schema_run_python_file = types.FunctionDeclaration(
-    name="run_python_file",
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
     description="Runs python file in a specified directory and returns either output or return codes or messages",
     parameters=types.Schema(
         type=types.Type.OBJECT,
