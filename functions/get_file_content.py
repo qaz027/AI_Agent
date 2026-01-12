@@ -1,6 +1,7 @@
 
 import os
 from google.genai import types
+from config import MAX_CHARS
 
 def get_file_content(working_directory, file_path):
     try:
@@ -15,7 +16,7 @@ def get_file_content(working_directory, file_path):
         if not os.path.isfile(target_file_path):
             return f'Error: File not found or is not a regular file: "{file_path}"'
 
-        MAX_CHARS = 10000
+        #MAX_CHARS = 10000
         with open(target_file_path, 'r') as file:
             content = file.read(MAX_CHARS)
 
@@ -30,14 +31,15 @@ def get_file_content(working_directory, file_path):
 # need to update    
 schema_get_file_content = types.FunctionDeclaration(
     name="get_file_content",
-    description="Runs python file in a specified directory and returns either output or return codes or messages",
+    description=f"Retrieves the content (at most {MAX_CHARS} characters) of a specified file within the working directory",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "directory": types.Schema(
+            "file_path": types.Schema(
                 type=types.Type.STRING,
-                description="Directory path to list files from, relative to the working directory (default is the working directory itself)",
+                description="path to file to read, relative to working directory",
             ),
         },
+        required=["file_path"],
     ),
 )

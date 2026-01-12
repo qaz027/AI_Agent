@@ -25,17 +25,20 @@ def main():
         raise RuntimeError("GEMINI_API_KEY is not set in environment variables.")
     
     client = genai.Client(api_key=api_key)
-    model = "gemini-2.5-flash"
+    
     contents = args.user_prompt
     messages = [types.Content(role="user", parts=[types.Part(text=contents)])]
+    
+    if args.verbose:
+        print(f"User prompt: {contents}\n")
 
-    generate_content(client, messages, model, args.verbose)
+    generate_content(client, messages, args.verbose)
 
 
-def generate_content(client, messages, model, verbose):
+def generate_content(client, messages, verbose):
 
     response = client.models.generate_content(
-        model=model, 
+        model="gemini-2.5-flash", 
         contents=messages,
         config=types.GenerateContentConfig(
             tools = [available_functions],system_instruction=system_prompt, temperature = 0),
@@ -46,7 +49,7 @@ def generate_content(client, messages, model, verbose):
         raise RuntimeError("Usage metadata is missing in the response. Doesn't look like the request was processed correctly.")
 
     if verbose:  # Check if verbose flag is set
-            print(f"User prompt: {args.user_prompt}")
+            #print(f"User prompt: {args.user_prompt}")
             print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
             print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
     
