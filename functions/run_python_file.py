@@ -41,13 +41,21 @@ def run_python_file(working_directory, file_path, args=None):
 # need to update    
 schema_run_python_file = types.FunctionDeclaration(
     name="run_python_file",
-    description="Runs python file in a specified directory and returns either output or return codes or messages",
+    description="Run python file by calling specified python file given code in a specified directory",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "directory": types.Schema(
                 type=types.Type.STRING,
-                description="Directory path to list files from, relative to the working directory (default is the working directory itself)",
+                description="Directory path relative to the working directory (default is the working directory itself) where we will find the file to run",
+            ),
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="file call that points to the actual file in the directory that we should looking to use"
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                description="optional array of addtional arguments that should be included in the run command for python"
             ),
         },
     ),

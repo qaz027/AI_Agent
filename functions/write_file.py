@@ -28,7 +28,7 @@ def write_file(working_directory, file_path, content):
 # need to update    
 schema_write_file = types.FunctionDeclaration(
     name="write_file",
-    description="Writes given content to a specified file in a specified directory and returns either confirmation message or return codes or error messages",
+    description="Writes content to a specified file in a specified directory",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
