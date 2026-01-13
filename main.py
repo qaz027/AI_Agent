@@ -5,7 +5,7 @@ from google import genai
 from google.genai import types
 
 from prompts import system_prompt
-from call_functions import available_functions
+from call_functions import available_functions, call_function
 
 
 # replacing hardcoded prompt with command-line argument
@@ -58,9 +58,27 @@ def generate_content(client, messages, verbose):
         print(response.text)
         return
     
-
+    function_results_list = []
     for function_call in response.function_calls:
-        print(f"Calling function: {function_call.name}({function_call.args})")
+        #print(f"Calling function: {function_call.name}({function_call.args})")
+        function_call_result =  call_function(function_call, verbose) #call_function[function_call.name()**{function_call.args}] - this is incorrect
+
+        if function_call_result.parts is None:
+            # Raise an exception
+            raise Exception(f"Content parts list is None for {function_call.name}")
+
+        if function_call_result.parts[0].function_response is None:
+            # raise an exception
+            raise Exception(f"Function response is None for {function_call.name}")
+
+        if function_call_result.parts[0].function_response.response is None:
+            # raise an exception
+            raise Exception(f"Function response - Response is None for {function_call.name}")
+
+        if verbose:
+            print(f"-> {function_call_result.parts[0].function_response.response}")
+
+        function_results_list.append(function_call_result.parts[0])
 
 
 
