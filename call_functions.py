@@ -20,7 +20,7 @@ def call_function(function_call, verbose=False):
         "get_file_content": get_file_content,
         "write_file": write_file,
         "run_python_file": run_python_file,
-        "get_file_info": get_files_info,
+        "get_files_info": get_files_info,
         }
 
 

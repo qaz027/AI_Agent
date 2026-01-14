@@ -1,4 +1,5 @@
 import os
+import sys
 from dotenv import load_dotenv
 import argparse
 from google import genai
@@ -6,6 +7,7 @@ from google.genai import types
 
 from prompts import system_prompt
 from call_functions import available_functions, call_function
+from config import MAX_ITERS
 
 
 # replacing hardcoded prompt with command-line argument
@@ -16,6 +18,7 @@ def main():
     parser.add_argument("user_prompt", type=str, help="User prompt")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output") # Optional verbose flag
     args = parser.parse_args()
+    n = 0
     # Now we can access `args.user_prompt`
 
     load_dotenv()
@@ -32,7 +35,21 @@ def main():
     if args.verbose:
         print(f"User prompt: {contents}\n")
 
-    generate_content(client, messages, args.verbose)
+    #putting function calling into a loop
+    while n < MAX_ITERS:
+        try:
+            final_response = generate_content(client, messages, args.verbose)
+            if final_response:
+                print("Final response:")
+                print(final_response)
+                return
+        
+        except Exception as e:
+            print(f"Error in generate content: {e}")
+        n += 1
+
+    print(f"Maximum iterations ({MAX_ITERS}) reached")
+    sys.exit(1)
 
 
 def generate_content(client, messages, verbose):
@@ -44,6 +61,13 @@ def generate_content(client, messages, verbose):
             tools = [available_functions],system_instruction=system_prompt, temperature = 0),
         )
     # used contents from the hardcode and args.user_prompt in previous iterations
+    
+    #check the candidates property of response
+    if response.candidates:
+        # iterate over them and append the .content property of each to the messages list.
+        for candidate in response.candidates:
+            if candidate.content:
+                messages.append(candidate.content)
 
     if response.usage_metadata is None:
         raise RuntimeError("Usage metadata is missing in the response. Doesn't look like the request was processed correctly.")
@@ -79,6 +103,8 @@ def generate_content(client, messages, verbose):
             print(f"-> {function_call_result.parts[0].function_response.response}")
 
         function_results_list.append(function_call_result.parts[0])
+
+    messages.append(types.Content(role="user", parts=function_results_list))
 
 
 
