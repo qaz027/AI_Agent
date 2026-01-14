@@ -18,7 +18,7 @@ def main():
     parser.add_argument("user_prompt", type=str, help="User prompt")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output") # Optional verbose flag
     args = parser.parse_args()
-    n = 0
+
     # Now we can access `args.user_prompt`
 
     load_dotenv()
@@ -36,7 +36,7 @@ def main():
         print(f"User prompt: {contents}\n")
 
     #putting function calling into a loop
-    while n < MAX_ITERS:
+    for _ in range(MAX_ITERS):
         try:
             final_response = generate_content(client, messages, args.verbose)
             if final_response:
@@ -46,7 +46,7 @@ def main():
         
         except Exception as e:
             print(f"Error in generate content: {e}")
-        n += 1
+        
 
     print(f"Maximum iterations ({MAX_ITERS}) reached")
     sys.exit(1)
