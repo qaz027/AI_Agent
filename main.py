@@ -1,5 +1,6 @@
 import os
 import sys
+
 from dotenv import load_dotenv
 import argparse
 from google import genai
@@ -52,7 +53,7 @@ def main():
     sys.exit(1)
 
 
-def generate_content(client, messages, verbose):
+def generate_content2(client, messages, verbose):
 
     response = client.models.generate_content(
         model="gemini-2.5-flash", 
@@ -62,12 +63,6 @@ def generate_content(client, messages, verbose):
         )
     # used contents from the hardcode and args.user_prompt in previous iterations
     
-    #check the candidates property of response
-    if response.candidates:
-        # iterate over them and append the .content property of each to the messages list.
-        for candidate in response.candidates:
-            if candidate.content:
-                messages.append(candidate.content)
 
     if response.usage_metadata is None:
         raise RuntimeError("Usage metadata is missing in the response. Doesn't look like the request was processed correctly.")
@@ -77,6 +72,12 @@ def generate_content(client, messages, verbose):
             print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
             print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
     
+    if response.candidates:
+            # iterate over them and append the .content property of each to the messages list.
+            for candidate in response.candidates:
+                if candidate.content:
+                    messages.append(candidate.content)
+
 
     if not response.function_calls:
         print(response.text)
@@ -88,15 +89,12 @@ def generate_content(client, messages, verbose):
         function_call_result =  call_function(function_call, verbose) #call_function[function_call.name()**{function_call.args}] - this is incorrect
 
         if function_call_result.parts is None:
-            # Raise an exception
             raise Exception(f"Content parts list is None for {function_call.name}")
 
         if function_call_result.parts[0].function_response is None:
-            # raise an exception
             raise Exception(f"Function response is None for {function_call.name}")
 
         if function_call_result.parts[0].function_response.response is None:
-            # raise an exception
             raise Exception(f"Function response - Response is None for {function_call.name}")
 
         if verbose:
@@ -106,7 +104,43 @@ def generate_content(client, messages, verbose):
 
     messages.append(types.Content(role="user", parts=function_results_list))
 
+def generate_content(client, messages, verbose):
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=messages,
+        config=types.GenerateContentConfig(
+            tools=[available_functions], system_instruction=system_prompt
+        ),
+    )
+    if not response.usage_metadata:
+        raise RuntimeError("Gemini API response appears to be malformed")
 
+    if verbose:
+        print("Prompt tokens:", response.usage_metadata.prompt_token_count)
+        print("Response tokens:", response.usage_metadata.candidates_token_count)
+
+    if response.candidates:
+        for candidate in response.candidates:
+            if candidate.content:
+                messages.append(candidate.content)
+
+    if not response.function_calls:
+        return response.text
+
+    function_responses = []
+    for function_call in response.function_calls:
+        result = call_function(function_call, verbose)
+        if (
+            not result.parts
+            or not result.parts[0].function_response
+            or not result.parts[0].function_response.response
+        ):
+            raise RuntimeError(f"Empty function response for {function_call.name}")
+        if verbose:
+            print(f"-> {result.parts[0].function_response.response}")
+        function_responses.append(result.parts[0])
+
+    messages.append(types.Content(role="user", parts=function_responses))
 
 
 
